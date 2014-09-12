@@ -18,7 +18,8 @@ app.post('/image', multipartMiddleware, function(req, res, next) {
   var imageData = fs.readFileSync(req.files.image.path)
   fs.unlinkSync(req.files.image.path)
 
-  var entry = {image: imageData}
+  var entry = {image: imageData, "content-type" : req.files.image.headers["content-type"]}
+
 
   collection.insert(entry, {}, function(e, results){
     if (e) return next(e)
@@ -31,8 +32,7 @@ app.get('/image/:id', function(req, res, next) {
 
   collection.findById(req.params.id, function(e, result){
     if (e) return next(e)
-    res.header("Content-Type", "image/jpeg")
-    console.log(result.image.buffer)
+    res.header("Content-Type", result["content-type"])
     res.send(result.image.buffer)
   })
 })
